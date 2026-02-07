@@ -13,24 +13,12 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user.username)
 
-class Category(models.Model):
-    name = models.CharField(max_length=100)
 
-    def __str__(self):
-        return self.name
-
-class Tag(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
 
 class Post(models.Model):
     post_owner = models.ForeignKey(User, on_delete=models.CASCADE)
     post_title = models.CharField(max_length=150)
     post_slug = models.SlugField(unique=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='post_category')
-    tags = models.ManyToManyField(Tag, related_name='post')
     post_img = models.ImageField(upload_to="media/post_images/") # i will make it optional later and add default image
     post_detail = RichTextField()
     created = models.DateTimeField(auto_now_add=True)
