@@ -1,6 +1,7 @@
 from django.urls import path # type: ignore
-from .views import home # type: ignore
+from .views import home, about # type: ignore
 
 urlpatterns = [
     path('', home, name='home'),
+    path('/about', about, name='about')
 ]
