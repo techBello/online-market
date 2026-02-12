@@ -12,3 +12,6 @@ def contact(request):
 
 def shop(request):
     return render(request, 'shop.html')
+
+def checkout(request):
+    return render(request, 'checkout.html')
