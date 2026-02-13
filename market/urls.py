@@ -1,5 +1,5 @@
 from django.urls import path # type: ignore
-from .views import home, about # type: ignore
+from .views import home, about, shop # type: ignore
 
 urlpatterns = [
     path('', home, name='home'),
