@@ -249,8 +249,8 @@ class Payment(models.Model):
         return self.transaction_id
     
 
-    # Review model
-    from django.db import models
+# Review model
+from django.db import models
 from django.conf import settings
 from products.models import Product
 
@@ -264,3 +264,17 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ('product', 'user')
+
+# Wishlist model
+from django.db import models
+from django.conf import settings
+from products.models import Product
+
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')
