@@ -218,3 +218,32 @@ class OrderItem(models.Model):
 
     def total_price(self):
         return self.price * self.quantity
+
+
+# Payment model
+from django.db import models
+from orders.models import Order
+
+
+class Payment(models.Model):
+    PAYMENT_METHODS = (
+        ('card', 'Card'),
+        ('bank', 'Bank Transfer'),
+        ('wallet', 'Wallet'),
+    )
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('successful', 'Successful'),
+        ('failed', 'Failed'),
+    )
+
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_id = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    paid_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.transaction_id
