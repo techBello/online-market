@@ -2,6 +2,24 @@ from django.db import models # type: ignore
 from django.contrib.auth.models import User # type: ignore
 from django.utils.text import slugify # type: ignore
 from ckeditor.fields import RichTextField # type: ignore
+from django.db import models # type: ignore
+from django.conf import settings # type: ignore
+# from products.models import Product
+from django.db import models # type: ignore
+from django.conf import settings # type: ignore
+from django.core.validators import MinValueValidator # type: ignore
+from django.db import models # type: ignore
+from django.conf import settings # type: ignore
+# from products.models import ProductSKU
+from django.db import models # type: ignore
+from django.conf import settings # type: ignore
+# from products.models import ProductSKU
+from django.core.validators import MinValueValidator # type: ignore
+from django.db import models # type: ignore
+from django.conf import settings # type: ignore
+# from products.models import Product
+from django.db import models # type: ignore
+# from orders.models import Order
 
 """
 # Create your models here.
@@ -82,11 +100,6 @@ class Services(models.Model):
 
 """
 # Product model
-from django.db import models
-from django.conf import settings
-from django.core.validators import MinValueValidator
-
-
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
@@ -146,11 +159,6 @@ class ProductSKU(models.Model): # Stock Keeping Unit
     
 
 # Cart model
-from django.db import models
-from django.conf import settings
-from products.models import ProductSKU
-
-
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -169,12 +177,6 @@ class CartItem(models.Model):
 
 
 # Order model
-from django.db import models
-from django.conf import settings
-from products.models import ProductSKU
-from django.core.validators import MinValueValidator
-
-
 class Address(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255)
@@ -221,10 +223,6 @@ class OrderItem(models.Model):
 
 
 # Payment model
-from django.db import models
-from orders.models import Order
-
-
 class Payment(models.Model):
     PAYMENT_METHODS = (
         ('card', 'Card'),
@@ -250,11 +248,6 @@ class Payment(models.Model):
     
 
 # Review model
-from django.db import models
-from django.conf import settings
-from products.models import Product
-
-
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -266,11 +259,6 @@ class Review(models.Model):
         unique_together = ('product', 'user')
 
 # Wishlist model
-from django.db import models
-from django.conf import settings
-from products.models import Product
-
-
 class Wishlist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
