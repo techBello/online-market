@@ -21,7 +21,7 @@ from django.conf import settings # type: ignore
 from django.db import models # type: ignore
 # from orders.models import Order
 
-"""
+
 # Create your models here.
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_dp')
@@ -31,7 +31,7 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user.username)
 
-
+"""
 
 class Post(models.Model):
     post_owner = models.ForeignKey(User, on_delete=models.CASCADE)
