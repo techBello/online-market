@@ -1,4 +1,10 @@
 from django.shortcuts import render, redirect # type: ignore
+import stripe
+from django.conf import settings
+from django.shortcuts import redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 # Create your views here.
 def home(request):
@@ -18,3 +24,7 @@ def checkout(request):
 
 def cart(request):
     return render(request, 'cart.html')
+
+
+# Stripe payment view
+stripe.api_key = settings.STRIPE_SECRET_KEY
