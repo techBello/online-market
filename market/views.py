@@ -59,3 +59,9 @@ def create_checkout_session(request):
         except Exception as e:
             return JsonResponse({'error': str(e)})
     return JsonResponse({'error': 'Invalid request'})
+
+def payment_success(request):
+    return render(request, "success.html")
+
+def payment_cancel(request):
+    return render(request, "cancel.html")
