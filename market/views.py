@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect # type: ignore
-import stripe
-from django.conf import settings
-from django.shortcuts import redirect
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse
+import stripe # type: ignore
+from django.conf import settings # type: ignore
+from django.shortcuts import redirect # type: ignore
+from django.http import JsonResponse # type: ignore
+from django.views.decorators.csrf import csrf_exempt # type: ignore
+from django.urls import reverse # type: ignore
 
 # Create your views here.
 def home(request):
