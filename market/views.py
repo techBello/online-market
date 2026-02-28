@@ -67,7 +67,6 @@ def payment_cancel(request):
     return render(request, "cancel.html")
 
 
-"""
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
@@ -91,4 +90,3 @@ def stripe_webhook(request):
         # order.save()
 
     return JsonResponse({'status': 'success'})
-"""
