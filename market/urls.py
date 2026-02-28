@@ -1,5 +1,5 @@
 from django.urls import path # type: ignore
-from .views import create_checkout_session, home, about, contact, shop, cart, checkout, create_checkout_session, payment_success, payment_cancel # type: ignore
+from .views import stripe_webhook, create_checkout_session, home, about, contact, shop, cart, checkout, create_checkout_session, payment_success, payment_cancel # type: ignore
 
 urlpatterns = [
     path('', home, name='home'),
@@ -11,6 +11,7 @@ urlpatterns = [
     path("checkout/", create_checkout_session, name="checkout"),
     path("success/", payment_success, name="payment_success"),
     path("cancel/", payment_cancel, name="payment_cancel"),
+    path("webhook/", stripe_webhook, name="stripe_webhook"),
 ]
 
-# path("webhook/", views.stripe_webhook, name="stripe_webhook"),
+
