@@ -12,3 +12,5 @@ urlpatterns = [
     path("success/", payment_success, name="payment_success"),
     path("cancel/", payment_cancel, name="payment_cancel"),
 ]
+
+# path("webhook/", views.stripe_webhook, name="stripe_webhook"),

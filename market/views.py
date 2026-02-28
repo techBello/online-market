@@ -65,3 +65,30 @@ def payment_success(request):
 
 def payment_cancel(request):
     return render(request, "cancel.html")
+
+
+"""
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except Exception:
+        return JsonResponse({'error': 'Invalid webhook'}, status=400)
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+
+        # ✅ Here you mark order as paid
+        # Example:
+        # order = Order.objects.get(id=session.client_reference_id)
+        # order.paid = True
+        # order.save()
+
+    return JsonResponse({'status': 'success'})
+"""
