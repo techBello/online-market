@@ -7,11 +7,11 @@ urlpatterns = [
     path('/contact', contact, name='contact'),
     path('/shop', shop, name='shop'),
     path('/cart', cart, name='cart'),
-    path('/checkout', checkout, name='checkout'),
-    path("checkout/", create_checkout_session, name="checkout"),
-    path("success/", payment_success, name="payment_success"),
-    path("cancel/", payment_cancel, name="payment_cancel"),
-    path("webhook/", stripe_webhook, name="stripe_webhook"),
+    # path('/checkout', checkout, name='checkout'),
+    path('/checkout', create_checkout_session, name='checkout'),
+    path('/success', payment_success, name='payment_success'),
+    path('/cancel', payment_cancel, name='payment_cancel'),
+    path('/webhook', stripe_webhook, name='stripe_webhook'),
 ]
 
 
