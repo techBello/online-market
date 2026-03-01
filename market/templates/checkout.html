@@ -337,7 +337,10 @@
                                 <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
                             </div>
                         </div>
-                        
+                        <form action="{% url 'checkout' %}" method="POST">
+                                {% csrf_token %}
+                                <button class="btn btn-block btn-primary font-weight-bold py-3" type="submit">Pay Now</button>
+                        </form>
                         {% comment %} <button class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button> {% endcomment %}
                     </div>
                 </div>

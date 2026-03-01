@@ -25,7 +25,6 @@ def checkout(request):
 def cart(request):
     return render(request, 'cart.html')
 
-
 # Stripe payment view
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -57,8 +56,8 @@ def create_checkout_session(request):
             return redirect(checkout_session.url)
 
         except Exception as e:
-            return JsonResponse({'error': str(e)})
-    return JsonResponse({'error': 'Invalid request'})
+            return render(request, 'checkout.html')
+    return render(request, 'checkout.html')
 
 def payment_success(request):
     return render(request, "success.html")
