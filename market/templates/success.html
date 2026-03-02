@@ -159,7 +159,16 @@
     </div>
     <!-- Breadcrumb End -->
 
-    {% comment %} success.html content here {% endcomment %}
+    <div class="card">
+        <div class="success-icon">✓</div>
+        <h1>Payment Successful</h1>
+        <p>Your transaction has been completed successfully.</p>
+        <p>Thank you for your payment.</p>
+
+        <a href="{% url 'home' %}" class="btn">
+            Go to Homepage
+        </a>
+    </div>
 
 
 

@@ -60,7 +60,8 @@ def create_checkout_session(request):
     return render(request, 'checkout.html')
 
 def payment_success(request):
-    return render(request, "success.html")
+    session_id = request.GET.get("session_id")
+    return render(request, "success.html", {"session_id": session_id})
 
 def payment_cancel(request):
     return render(request, "cancel.html")
