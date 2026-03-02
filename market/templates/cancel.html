@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Success{% endblock %}
+{% block title %}Cancel{% endblock %}
 
 {% block content %}   
 <!-- Topbar Start -->
@@ -159,19 +159,22 @@
     </div>
     <!-- Breadcrumb End -->
 
-    <div class="card">
-        <div class="success-icon">✓</div>
-        <h1>Payment Successful</h1>
-        <p>Your transaction has been completed successfully.</p>
-        <p>Thank you for your payment.</p>
+    <div class="container" style="max-width:600px;margin:80px auto;text-align:center;">
+    
+        <h2>Payment Cancelled</h2>
 
-        {% if session_id %}
-        <p><strong>Transaction ID:</strong> {{ session_id }}</p>
-        {% endif %} 
+        <p>
+            Order ID: <strong>{{ order.id }}</strong>
+        </p>
 
-        <a href="{% url 'home' %}" class="btn">
-            Go to Homepage
+        <p>
+            Your order is still pending. No money was deducted.
+        </p>
+
+        <a href="{% url 'checkout' %}" class="btn btn-primary">
+            Complete Payment
         </a>
+
     </div>
 
 
