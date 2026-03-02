@@ -165,6 +165,10 @@
         <p>Your transaction has been completed successfully.</p>
         <p>Thank you for your payment.</p>
 
+        {% if session_id %}
+        <p><strong>Transaction ID:</strong> {{ session_id }}</p>
+        {% endif %}
+
         <a href="{% url 'home' %}" class="btn">
             Go to Homepage
         </a>

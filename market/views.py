@@ -20,7 +20,10 @@ def shop(request):
     return render(request, 'shop.html')
 
 def checkout(request):
-    return render(request, 'checkout.html')
+    success_url = request.build_absolute_uri(
+        reverse("payment_success")
+    ) + "?session_id={CHECKOUT_SESSION_ID}"
+    return render(request, 'checkout.html', {"success_url": success_url})
 
 def cart(request):
     return render(request, 'cart.html')
