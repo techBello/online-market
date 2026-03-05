@@ -1,0 +1,1 @@
+console.log("hi, i'm working for shop.html page...")
