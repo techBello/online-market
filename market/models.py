@@ -137,6 +137,32 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to="products/")
     alt_text = models.CharField(max_length=255, blank=True)
 
+CLOTHES_CHOICES = (
+    ('men', 'Men'),
+    ('women', 'Women'),
+    ('kids', 'Kids'),
+)
+
+class ProductCategories(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    product_categories = models.ChoiceField(choices=CLOTHES_CHOICES)
+
+
+"""
+from django import forms
+
+# Define choices as a tuple of tuples
+GENDER_CHOICES = [
+    ('M', 'Male'),
+    ('F', 'Female'),
+    ('O', 'Other'),
+]
+
+class ProfileForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    gender = forms.ChoiceField(choices=GENDER_CHOICES)
+
+"""
 
 class ProductVariation(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variations")
