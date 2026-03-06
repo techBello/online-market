@@ -145,7 +145,7 @@ CLOTHES_CHOICES = (
 
 class ProductCategories(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
-    product_categories = models.ChoiceField(choices=CLOTHES_CHOICES)
+    product_categories = models.CharField(max_length=20, choices=CLOTHES_CHOICES)
 
 
 """
