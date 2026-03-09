@@ -14,4 +14,6 @@ urlpatterns = [
     path('/webhook', stripe_webhook, name='stripe_webhook'),
 ]
 
+# adding new route for shopping
+
 
