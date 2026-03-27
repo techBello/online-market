@@ -5,6 +5,9 @@ from django.shortcuts import redirect # type: ignore
 from django.http import JsonResponse # type: ignore
 from django.views.decorators.csrf import csrf_exempt # type: ignore
 from django.urls import reverse # type: ignore
+from django.db.models import Q, Min, Max # type: ignore
+from .models import Product, Category, ProductImage, Cart, CartItem, ProductSKU # type: ignore
+import json # type: ignore
 
 # Create your views here.
 def home(request):
@@ -17,7 +20,55 @@ def contact(request):
     return render(request, 'contact.html')
 
 def shop(request):
-    return render(request, 'shop.html')
+    products = Product.objects.filter(is_active=True).prefetch_related('images', 'skus')
+    categories = Category.objects.all()
+    
+    # Get price range
+    price_range = ProductSKU.objects.aggregate(min_price=Min('price'), max_price=Max('price'))
+    
+    # Filter by category
+    category = request.GET.get('category')
+    if category:
+        products = products.filter(category__slug=category)
+    
+    # Filter by price
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    if min_price:
+        products = products.filter(skus__price__gte=min_price)
+    if max_price:
+        products = products.filter(skus__price__lte=max_price)
+    
+    # Search
+    search_query = request.GET.get('q')
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+    
+    # Sort
+    sort_by = request.GET.get('sort', 'latest')
+    if sort_by == 'price_low':
+        products = products.order_by('skus__price')
+    elif sort_by == 'price_high':
+        products = products.order_by('-skus__price')
+    elif sort_by == 'popular':
+        products = products.order_by('-created_at')
+    else:  # latest
+        products = products.order_by('-created_at')
+    
+    products = products.distinct()
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'price_range': price_range,
+        'selected_category': category,
+        'selected_sort': sort_by,
+        'search_query': search_query or '',
+    }
+    return render(request, 'shop.html', context)
 
 def checkout(request):
     success_url = request.build_absolute_uri(
@@ -27,6 +78,68 @@ def checkout(request):
 
 def cart(request):
     return render(request, 'cart.html')
+
+@csrf_exempt
+def add_to_cart(request):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+            quantity = data.get('quantity', 1)
+            
+            user = request.user if request.user.is_authenticated else None
+            
+            if not user:
+                return JsonResponse({'success': False, 'message': 'Please login first'}, status=401)
+            
+            cart_obj, _ = Cart.objects.get_or_create(user=user)
+            
+            try:
+                sku = ProductSKU.objects.filter(product_id=product_id).first()
+                if not sku:
+                    return JsonResponse({'success': False, 'message': 'Product not found'}, status=404)
+                
+                cart_item, created = CartItem.objects.get_or_create(
+                    cart=cart_obj,
+                    sku=sku,
+                    defaults={'quantity': quantity}
+                )
+                
+                if not created:
+                    cart_item.quantity += quantity
+                    cart_item.save()
+                
+                return JsonResponse({'success': True, 'message': 'Product added to cart'})
+            except ProductSKU.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Product variant not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid data'}, status=400)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def add_to_wishlist(request):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+            
+            user = request.user if request.user.is_authenticated else None
+            
+            if not user:
+                return JsonResponse({'success': False, 'message': 'Please login first'}, status=401)
+            
+            product = Product.objects.get(id=product_id)
+            
+            # Simple implementation - you can create a Wishlist model later
+            message = f'{product.name} added to wishlist!'
+            return JsonResponse({'success': True, 'message': message})
+        except Product.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Product not found'}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid data'}, status=400)
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
 
 # Stripe payment view
 stripe.api_key = settings.STRIPE_SECRET_KEY

@@ -1,29 +1,292 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Shop{% endblock %}
 
 {% block content %}
-    <!-- Topbar Start -->
-    <div class="container-fluid">
-        <div class="row bg-secondary py-1 px-xl-5">
-            <div class="col-lg-6 d-none d-lg-block">
-                <div class="d-inline-flex align-items-center h-100">
-                    <a class="text-body mr-3" href="{% url 'about' %}">About</a>
-                    <a class="text-body mr-3" href="{% url 'contact' %}">Contact</a>
-                    {% comment %} <a class="text-body mr-3" href="{% url 'help' %}">Help</a> {% endcomment %}
-                    {% comment %} <a class="text-body mr-3" href="{% url 'faq' %}">FAQs</a> {% endcomment %}
-                </div>
-            </div>
-            <div class="col-lg-6 text-center text-lg-right">
-                <div class="d-inline-flex align-items-center">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">My Account</button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <button class="dropdown-item" type="button">Sign in</button>
-                            <button class="dropdown-item" type="button">Sign up</button>
+<!-- Breadcrumb Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="{% url 'home' %}">Home</a>
+                <span class="breadcrumb-item active">Shop</span>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Shop Start -->
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <!-- Sidebar Start -->
+        <div class="col-lg-3 col-md-4">
+            <!-- Search Start -->
+            <h5 class="section-title position-relative text-uppercase mb-3">
+                <span class="bg-secondary pr-3">Search</span>
+            </h5>
+            <div class="bg-light p-4 mb-30">
+                <form method="GET" action="{% url 'shop' %}">
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" name="q" placeholder="Search products" value="{{ search_query }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
                         </div>
                     </div>
+                </form>
+            </div>
+            <!-- Search End -->
+
+            <!-- Category Start -->
+            <h5 class="section-title position-relative text-uppercase mb-3">
+                <span class="bg-secondary pr-3">Filter by Category</span>
+            </h5>
+            <div class="bg-light p-4 mb-30">
+                <form method="GET" action="{% url 'shop' %}">
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="category-all" onchange="this.form.submit()">
+                        <label class="custom-control-label" for="category-all">All Categories</label>
+                    </div>
+                    {% for category in categories %}
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="category-{{ category.id }}" 
+                            name="category" value="{{ category.slug }}" 
+                            {% if selected_category == category.slug %}checked{% endif %}
+                            onchange="this.form.submit()">
+                        <label class="custom-control-label" for="category-{{ category.id }}">
+                            {{ category.name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
+            <!-- Category End -->
+
+            <!-- Price Filter Start -->
+            <h5 class="section-title position-relative text-uppercase mb-3">
+                <span class="bg-secondary pr-3">Filter by Price</span>
+            </h5>
+            <div class="bg-light p-4 mb-30">
+                <form method="GET" action="{% url 'shop' %}" class="price-filter-form">
+                    <div class="mb-3">
+                        <label for="min-price">Min Price: $<span id="min-price-display">0</span></label>
+                        <input type="range" class="custom-range" id="min-price" name="min_price" min="0" 
+                            max="{% if price_range.max_price %}{{ price_range.max_price|floatformat:0 }}{% else %}1000{% endif %}" 
+                            value="{{ min_price|default:0 }}" onchange="document.getElementById('min-price-display').textContent = this.value">
+                    </div>
+                    <div class="mb-3">
+                        <label for="max-price">Max Price: $<span id="max-price-display">{% if price_range.max_price %}{{ price_range.max_price|floatformat:0 }}{% else %}1000{% endif %}</span></label>
+                        <input type="range" class="custom-range" id="max-price" name="max_price" min="0" 
+                            max="{% if price_range.max_price %}{{ price_range.max_price|floatformat:0 }}{% else %}1000{% endif %}" 
+                            value="{{ max_price|default:price_range.max_price|default:1000 }}" 
+                            onchange="document.getElementById('max-price-display').textContent = this.value">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Filter</button>
+                </form>
+            </div>
+            <!-- Price Filter End -->
+        </div>
+        <!-- Sidebar End -->
+
+        <!-- Products Start -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Toolbar Start -->
+            <div class="row pb-1 mb-3">
+                <div class="col-12">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-muted">Showing {{ products|length }} results</span>
+                        </div>
+                        <div>
+                            <form method="GET" action="{% url 'shop' %}" class="form-inline">
+                                <input type="hidden" name="category" value="{{ selected_category }}">
+                                <input type="hidden" name="q" value="{{ search_query }}">
+                                <div class="btn-group ml-auto">
+                                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
+                                        Sort: {{ selected_sort|default:"Latest" }}
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="?sort=latest{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Latest</a>
+                                        <a class="dropdown-item" href="?sort=price_low{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Price: Low to High</a>
+                                        <a class="dropdown-item" href="?sort=price_high{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Price: High to Low</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Toolbar End -->
+
+            <!-- Products Grid Start -->
+            {% if products %}
+            <div class="row">
+                {% for product in products %}
+                <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                    <div class="product-item bg-light mb-4">
+                        <!-- Product Image -->
+                        <div class="product-img position-relative overflow-hidden">
+                            {% if product.images.all %}
+                                <img class="img-fluid w-100" src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <img class="img-fluid w-100" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.name }}">
+                            {% endif %}
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square add-to-cart" href="#" data-product-id="{{ product.id }}" title="Add to Cart">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square add-to-wishlist" href="#" data-product-id="{{ product.id }}" title="Add to Wishlist">
+                                    <i class="far fa-heart"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square quick-view" href="#" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#quickViewModal" title="Quick View">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="text-center py-4">
+                            <h6 class="text-decoration-none text-truncate">
+                                <a href="#" class="text-dark">{{ product.name }}</a>
+                            </h6>
+                            {% if product.skus.all %}
+                                {% with min_sku=product.skus.all|first %}
+                                <div class="d-flex align-items-center justify-content-center mt-2">
+                                    <h5>${{ min_sku.price }}</h5>
+                                </div>
+                                {% endwith %}
+                            {% endif %}
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                                <small>({{ product.skus.count }})</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Status -->
+                        <div class="text-center pb-3">
+                            {% with total_stock=product.skus.all|length %}
+                            {% if total_stock > 0 %}
+                                <span class="badge badge-success">In Stock ({{ total_stock }})</span>
+                            {% else %}
+                                <span class="badge badge-danger">Out of Stock</span>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                <h5>No products found</h5>
+                <p>Try adjusting your filters or search criteria</p>
+            </div>
+            {% endif %}
+            <!-- Products Grid End -->
+        </div>
+        <!-- Products End -->
+    </div>
+</div>
+<!-- Shop End -->
+
+<!-- Quick View Modal -->
+<div class="modal fade" id="quickViewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quick View</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="quickViewContent">
+                <!-- Content will be loaded here via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add to Cart
+document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        fetch('{% url "add_to_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Product added to cart!');
+            }
+        });
+    });
+});
+
+// Add to Wishlist
+document.querySelectorAll('.add-to-wishlist').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        const icon = this.querySelector('i');
+        
+        fetch('{% url "add_to_wishlist" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                product_id: productId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                icon.classList.toggle('fas');
+                icon.classList.toggle('far');
+                alert(data.message);
+            }
+        });
+    });
+});
+
+// Quick View
+document.querySelectorAll('.quick-view').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        
+        fetch(`/product/${productId}/quick-view/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('quickViewContent').innerHTML = data.html;
+        });
+    });
+});
+</script>
+
+{% endblock %}
                     <div class="btn-group mx-2">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">USD</button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -644,12 +907,4 @@
             </div>
         </div>
     </div>
-    <!-- Footer End -->
 
-
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
-
-
-
-{% endblock %}
