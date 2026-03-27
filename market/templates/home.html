@@ -1,10 +1,14 @@
-<html>
-<head>
-    <title>Online Market</title>
-</head>
+{% extends "base.html" %}
+{% load static %}
 
-<body>
-    <h1>Welcome to the Online Market</h1>
-</body>
+{% block title %}Welcome{% endblock %}
 
-</html>
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center py-5">
+        <h1 class="display-4 text-primary">Welcome to Online Market</h1>
+        <p class="lead text-secondary">Discover the best products at unbeatable prices</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary btn-lg mt-4">Shop Now</a>
+    </div>
+</div>
+{% endblock %}

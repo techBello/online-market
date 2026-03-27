@@ -11,7 +11,14 @@ import json # type: ignore
 
 # Create your views here.
 def home(request):
-    return render(request, 'index.html')
+    featured_products = Product.objects.filter(is_active=True).prefetch_related('images', 'skus')[:8]
+    categories = Category.objects.all()[:12]
+    
+    context = {
+        'featured_products': featured_products,
+        'categories': categories,
+    }
+    return render(request, 'index.html', context)
 
 def about(request):
     return render(request, 'about.html')
@@ -71,13 +78,42 @@ def shop(request):
     return render(request, 'shop.html', context)
 
 def checkout(request):
+    user = request.user if request.user.is_authenticated else None
+    cart_items = []
+    total_price = 0
+    
+    if user:
+        try:
+            cart = Cart.objects.get(user=user)
+            cart_items = cart.items.select_related('sku__product').all()
+            total_price = sum(item.sku.price * item.quantity for item in cart_items)
+        except Cart.DoesNotExist:
+            pass
+    
     success_url = request.build_absolute_uri(
         reverse("payment_success")
     ) + "?session_id={CHECKOUT_SESSION_ID}"
-    return render(request, 'checkout.html', {"success_url": success_url})
+    
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'success_url': success_url,
+    }
+    return render(request, 'checkout.html', context)
 
 def cart(request):
-    return render(request, 'cart.html')
+    user = request.user if request.user.is_authenticated else None
+    cart_items = []
+    
+    if user:
+        try:
+            cart = Cart.objects.get(user=user)
+            cart_items = cart.items.select_related('sku__product').all()
+        except Cart.DoesNotExist:
+            pass
+    
+    context = {'cart_items': cart_items}
+    return render(request, 'cart.html', context)
 
 @csrf_exempt
 def add_to_cart(request):
