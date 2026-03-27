@@ -871,5 +871,64 @@
 
   
 
-          
+          <script>
+// Add to Cart Functionality
+document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        fetch('{% url "add_to_cart" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Product added to cart!');
+            } else {
+                alert(data.message || 'Error adding to cart');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+
+// Add to Wishlist Functionality
+document.querySelectorAll('.add-to-wishlist').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
+        const icon = this.querySelector('i');
+        
+        fetch('{% url "add_to_wishlist" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                product_id: productId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                icon.classList.toggle('fas');
+                icon.classList.toggle('far');
+                alert(data.message);
+            } else {
+                alert(data.message || 'Error adding to wishlist');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+</script>
 {% endblock %}
