@@ -338,7 +338,7 @@
                             </div>
                         </div>
                         {% if cart_items %}
-                        <form action="{% url 'checkout' %}" method="POST">
+                        <form action="{% url 'create_checkout_session' %}" method="POST">
                                 {% csrf_token %}
                                 <button class="btn btn-block btn-primary font-weight-bold py-3" type="submit">Pay Now</button>
                         </form>
