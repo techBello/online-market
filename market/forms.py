@@ -31,3 +31,54 @@ class ContactForm(forms.Form):
     email = forms.EmailField()
     message = forms.CharField(widget=forms.Textarea)
 
+
+class CartUpdateForm(forms.Form):
+    quantity = forms.IntegerField(min_value=1, widget=forms.NumberInput(attrs={
+        'class': 'form-control',
+        'style': 'width: 80px;'
+    }))
+    update = forms.BooleanField(required=False, initial=False, widget=forms.HiddenInput())
+
+
+class CheckoutForm(forms.Form):
+    first_name = forms.CharField(max_length=50)
+    last_name = forms.CharField(max_length=50)
+    email = forms.EmailField()
+    phone = forms.CharField(max_length=20)
+    address_line_1 = forms.CharField(max_length=255)
+    address_line_2 = forms.CharField(max_length=255, required=False)
+    country = forms.CharField(max_length=100)
+    city = forms.CharField(max_length=100)
+    state = forms.CharField(max_length=100)
+    zip_code = forms.CharField(max_length=20)
+    payment_method = forms.ChoiceField(choices=Payment.PAYMENT_METHODS)
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5, 'class': 'form-control'}),
+            'comment': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+        }
+
+
+class WishlistForm(forms.ModelForm):
+    class Meta:
+        model = Wishlist
+        fields = ['product']
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['method', 'amount', 'transaction_id', 'status']
+        widgets = {
+            'method': forms.Select(attrs={'class': 'form-control'}),
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'transaction_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+
