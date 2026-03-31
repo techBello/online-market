@@ -1,25 +1,9 @@
-from django.db import models # type: ignore
-from django.contrib.auth.models import User # type: ignore
-from django.utils.text import slugify # type: ignore
-from ckeditor.fields import RichTextField # type: ignore
-from django.db import models # type: ignore
-from django.conf import settings # type: ignore
-# from products.models import Product
-from django.db import models # type: ignore
-from django.conf import settings # type: ignore
-from django.core.validators import MinValueValidator # type: ignore
-from django.db import models # type: ignore
-from django.conf import settings # type: ignore
-# from products.models import ProductSKU
-from django.db import models # type: ignore
-from django.conf import settings # type: ignore
-# from products.models import ProductSKU
-from django.core.validators import MinValueValidator # type: ignore
-from django.db import models # type: ignore
-from django.conf import settings # type: ignore
-# from products.models import Product
-from django.db import models # type: ignore
-# from orders.models import Order
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.text import slugify
+from ckeditor.fields import RichTextField
+from django.conf import settings
+from django.core.validators import MinValueValidator
 
 
 # Create your models here.
@@ -137,15 +121,15 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to="products/")
     alt_text = models.CharField(max_length=255, blank=True)
 
-CLOTHES_CHOICES = (
-    ('men', 'Men'),
-    ('women', 'Women'),
-    ('kids', 'Kids'),
-)
+    def __str__(self):
+        return f"Image for {self.product.name}"
 
-class ProductCategories(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
-    product_categories = models.CharField(max_length=20, choices=CLOTHES_CHOICES)
+# CLOTHES_CHOICES = (
+#     ('men', 'Men'),
+#     ('women', 'Women'),
+#     ('kids', 'Kids'),
+# )
+# Note: Use Category model with parent field for hierarchical categories instead
 
 
 """
