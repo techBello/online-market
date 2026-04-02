@@ -96,22 +96,22 @@
             <!-- Toolbar Start -->
             <div class="row pb-1 mb-3">
                 <div class="col-12">
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
                         <div>
-                            <span class="text-muted">Showing {{ products|length }} results</span>
+                            <span class="badge badge-info">{{ products|length }} product{{ products|length|pluralize }}</span>
                         </div>
-                        <div>
+                        <div class="ml-auto">
                             <form method="GET" action="{% url 'shop' %}" class="form-inline">
                                 <input type="hidden" name="category" value="{{ selected_category }}">
                                 <input type="hidden" name="q" value="{{ search_query }}">
-                                <div class="btn-group ml-auto">
-                                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
-                                        Sort: {{ selected_sort|default:"Latest" }}
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" id="sortDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa fa-sort"></i> Sort: <strong>{{ selected_sort|default:"Latest" }}</strong>
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item" href="?sort=latest{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Latest</a>
-                                        <a class="dropdown-item" href="?sort=price_low{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Price: Low to High</a>
-                                        <a class="dropdown-item" href="?sort=price_high{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}">Price: High to Low</a>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="sortDropdown">
+                                        <a class="dropdown-item" href="?sort=latest{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"><i class="fa fa-clock"></i> Latest</a>
+                                        <a class="dropdown-item" href="?sort=price_low{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"><i class="fa fa-arrow-up"></i> Price: Low to High</a>
+                                        <a class="dropdown-item" href="?sort=price_high{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"><i class="fa fa-arrow-down"></i> Price: High to Low</a>
                                     </div>
                                 </div>
                             </form>
@@ -134,46 +134,53 @@
                             {% else %}
                                 <img class="img-fluid w-100" src="{% static 'img/placeholder.jpg' %}" alt="{{ product.name }}">
                             {% endif %}
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square add-to-cart" href="#" data-product-id="{{ product.id }}" title="Add to Cart">
+                            <div class="product-action d-flex gap-2 justify-content-center">
+                                <button class="btn btn-outline-dark btn-square add-to-cart" data-product-id="{{ product.id }}" title="Add to Cart" aria-label="Add {{ product.name }} to Cart">
                                     <i class="fa fa-shopping-cart"></i>
-                                </a>
-                                <a class="btn btn-outline-dark btn-square add-to-wishlist" href="#" data-product-id="{{ product.id }}" title="Add to Wishlist">
+                                </button>
+                                <button class="btn btn-outline-dark btn-square add-to-wishlist" data-product-id="{{ product.id }}" title="Add to Wishlist" aria-label="Add {{ product.name }} to Wishlist">
                                     <i class="far fa-heart"></i>
-                                </a>
-                                <a class="btn btn-outline-dark btn-square quick-view" href="#" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#quickViewModal" title="Quick View">
+                                </button>
+                                <button class="btn btn-outline-dark btn-square quick-view" data-product-id="{{ product.id }}" data-toggle="modal" data-target="#quickViewModal" title="Quick View" aria-label="Quick view of {{ product.name }}">
                                     <i class="fa fa-search"></i>
-                                </a>
+                                </button>
                             </div>
                         </div>
 
                         <!-- Product Info -->
                         <div class="text-center py-4">
-                            <h6 class="text-decoration-none text-truncate">
-                                <a href="#" class="text-dark">{{ product.name }}</a>
+                            <h6 class="mb-2 h-auto" style="min-height: 45px;">
+                                <a href="{% url 'product_detail' product.id %}" class="text-dark text-decoration-none" title="{{ product.name }}">
+                                    {{ product.name }}
+                                </a>
                             </h6>
+                            <p class="text-muted small text-truncate" style="max-height: 20px;">
+                                {{ product.description|truncatewords:8 }}
+                            </p>
                             {% if product.skus.all %}
-                                {% with min_sku=product.skus.all|first %}
+                                {% with min_price=product.skus.all|first %}
                                 <div class="d-flex align-items-center justify-content-center mt-2">
-                                    <h5>${{ min_sku.price }}</h5>
+                                    <h5 class="text-danger font-weight-bold">${{ min_price.price }}</h5>
                                 </div>
                                 {% endwith %}
                             {% endif %}
+                            {% if product.reviews.all %}
                             <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star-half-alt text-primary mr-1"></small>
-                                <small>({{ product.skus.count }})</small>
+                                {% with avg_rating=product.reviews.all|length %}
+                                    {% if avg_rating > 0 %}
+                                        <small class="fa fa-star text-primary mr-1"></small>
+                                        <small>({{ avg_rating }} review{{ avg_rating|pluralize }})</small>
+                                    {% endif %}
+                                {% endwith %}
                             </div>
+                            {% endif %}
                         </div>
                         
                         <!-- Stock Status -->
                         <div class="text-center pb-3">
-                            {% with total_stock=product.skus.all|length %}
-                            {% if total_stock > 0 %}
-                                <span class="badge badge-success">In Stock ({{ total_stock }})</span>
+                            {% with total_stock=product.skus.all|dictsort:"stock"|first %}
+                            {% if total_stock and total_stock.stock > 0 %}
+                                <span class="badge badge-success">✓ In Stock</span>
                             {% else %}
                                 <span class="badge badge-danger">Out of Stock</span>
                             {% endif %}
@@ -197,17 +204,25 @@
 <!-- Shop End -->
 
 <!-- Quick View Modal -->
-<div class="modal fade" id="quickViewModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="quickViewModal" tabindex="-1" role="dialog" aria-labelledby="quickViewLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Quick View</h5>
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title" id="quickViewLabel">Quick View</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="quickViewContent">
-                <!-- Content will be loaded here via AJAX -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="#" id="viewDetail" class="btn btn-primary" target="_blank">View Details</a>
             </div>
         </div>
     </div>
