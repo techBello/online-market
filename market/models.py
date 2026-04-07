@@ -10,7 +10,7 @@ from django.core.validators import MinValueValidator
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_dp')
     full_name = models.CharField(max_length=100, help_text="enter your full name")
-    profile_picture = models.ImageField(upload_to="media/profile_images/", default="media/profile_images/default.webp")
+    profile_picture = models.ImageField(upload_to="media/profile_images/", default="static/images/default.webp", blank=True)
 
     def __str__(self):
         return str(self.user.username)
@@ -21,7 +21,7 @@ class Post(models.Model):
     post_owner = models.ForeignKey(User, on_delete=models.CASCADE)
     post_title = models.CharField(max_length=150)
     post_slug = models.SlugField(unique=True, blank=True)
-    post_img = models.ImageField(upload_to="media/post_images/") # i will make it optional later and add default image
+    post_img = models.ImageField(upload_to="media/post_images/", blank=True, null=True, default="static/images/default_post.webp")
     post_detail = RichTextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -47,9 +47,9 @@ class Post(models.Model):
 class Comments(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="post_comment")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="commentor_name") #i need to user to profile 
-    comment = RichTextField(null=True)
-    created = models.DateTimeField(auto_now_add=True, null=True)
-    updated = models.DateTimeField(auto_now=True, null=True)
+    comment = RichTextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.post.post_title)
@@ -57,7 +57,7 @@ class Comments(models.Model):
 class Likes(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    like = models.BooleanField(default=False, null=True)
+    like = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('post', 'user')
@@ -70,9 +70,9 @@ class Likes(models.Model):
 class Services(models.Model):
     service_name = models.CharField(max_length=150)
     service_slug = models.SlugField(unique=True, blank=True)
-    service_img = models.ImageField(upload_to="media/service_images/")
+    service_img = models.ImageField(upload_to="media/service_images/", blank=True, null=True, default="static/images/default_service.webp")
     service_info = RichTextField()
-    service_price = models.IntegerField()
+    service_price = models.IntegerField(validators=[MinValueValidator(0)])
 
     def save(self, *args, **kwargs):
         self.service_slug = slugify(self.service_name, allow_unicode=True)
@@ -86,7 +86,7 @@ class Services(models.Model):
 # Product model
 class Category(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, blank=True)
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -94,6 +94,10 @@ class Category(models.Model):
         blank=True,
         related_name="children"
     )
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name, allow_unicode=True)
+        super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
