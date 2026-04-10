@@ -178,7 +178,7 @@ def add_to_wishlist(request):
     return JsonResponse({'success': False, 'message': 'Invalid request'}, status=400)
 
 # Stripe payment view
-stripe.api_key = settings.STRIPE_SECRET_KEY
+stripe.api_key = settings.STRIPE_SECRET_KEY # Set your Stripe secret key from settings
 
 def create_checkout_session(request): # create checkout session for Stripe payment
     if request.method == "POST":
