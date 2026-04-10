@@ -180,7 +180,7 @@ def add_to_wishlist(request):
 # Stripe payment view
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-def create_checkout_session(request):
+def create_checkout_session(request): # create checkout session for Stripe payment
     if request.method == "POST":
         try:
             checkout_session = stripe.checkout.Session.create(
@@ -220,7 +220,7 @@ def payment_cancel(request):
 
 
 @csrf_exempt
-def stripe_webhook(request):
+def stripe_webhook(request): # handle Stripe webhook events
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
