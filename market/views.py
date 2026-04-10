@@ -116,7 +116,7 @@ def cart(request):
     return render(request, 'cart.html', context)
 
 @csrf_exempt
-def add_to_cart(request):
+def add_to_cart(request): # add to cart function
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
             data = json.loads(request.body)
